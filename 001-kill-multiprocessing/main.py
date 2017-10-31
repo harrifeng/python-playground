@@ -17,6 +17,10 @@ def main():
     original_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
     pool = multiprocessing.Pool(2)
     signal.signal(signal.SIGINT, original_sigint_handler)
+    # This is important we use original SIGINT's handler to handle SIGTERM
+    # and SIGCHLD
+    signal.signal(signal.SIGTERM, original_sigint_handler)
+    signal.signal(signal.SIGCHLD, original_sigint_handler)
     try:
         print("Starting 2 jobs of 5 seconds each")
         res = pool.map_async(run_worker, [50, 50])

@@ -1,6 +1,7 @@
 import argparse
 import requests
 import time
+import json
 
 parser = argparse.ArgumentParser(description='Sending http request one by one')
 
@@ -16,15 +17,23 @@ print args.file
 bodys = []
 
 httpm = {}
+skip = 0
 with open(args.file, 'r') as infile:
     for line in infile:
+        skip += 1
         try:
             jret = json.loads(line)
         except ValueError:
             print 'error'
+            continue
         if 'cmd' in jret:
-            httpm[jret['cmd']] = line
+            httpm.setdefault(jret['cmd'], [])
+            httpm[jret['cmd']].append(line[:10])
         else:
-            httpm['nocmd'] = line
+            httpm.setdefault('nocmd', [])
+            httpm['nocmd'].append(line)
+        if skip == 10:
+            break
 
-print httpm.keys()
+
+print httpm
